@@ -190,15 +190,17 @@
   function glyphFor(code){
     var c=Number(code);
     if(!isFinite(c)) return "cloud";
-    if(c>=83&&c<=85) return "thunder";
-    if(c>=80&&c<=82) return "rain";
-    if(c>=70&&c<=75) return "sun";            // 夜間晴朗 → 用太陽符號保持易讀
-    if(c>=50&&c<=54) return "sun";
-    if(c>=60&&c<=62) return "pcloud";
-    if(c>=63&&c<=65) return "rain";
-    if(c>=76&&c<=77) return "cloud";
-    if(c>=90&&c<=91) return "fog";
-    if(c>=92) return "cold";
+    if(c>=83&&c<=85) return "thunder";       // 有雷暴
+    if(c>=80&&c<=82) return "rain";         // 有雨／驟雨／大雨
+    if(c>=74&&c<=75) return "rain";         // 夜間有驟雨
+    if(c>=76&&c<=77) return "cloud";        // 夜間多雲／密雲
+    if(c>=70&&c<=73) return "sun";          // 夜間晴朗（用太陽符號保持易讀）
+    if(c>=63&&c<=65) return "rain";         // 密雲有雨
+    if(c>=60&&c<=62) return "cloud";        // 多雲／密雲
+    if(c>=53&&c<=54) return "rain";         // 陽光有驟雨
+    if(c>=50&&c<=52) return "pcloud";       // 晴朗／間有陽光
+    if(c>=90&&c<=91) return "fog";          // 霧
+    if(c>=92) return "cold";                // 寒冷
     return "cloud";
   }
   function drawCloud(ctx,cx,cy,s,fill){
@@ -349,9 +351,9 @@
       ctx.fillText(sub||"", bx+bw/2, y+80);
       ctx.textAlign="left";
     }
-    box(0,"💧 相對濕度",(d.hum===null||d.hum===undefined)?"--":d.hum+"%","天文台讀數");
-    box(1,"🔆 紫外線",(d.uv===null||d.uv===undefined)?"--":String(d.uv),d.uvD||"—","#ffd54f");
-    box(2,"🌡 體感",(d.feel===null||d.feel===undefined)?"--":d.feel+"°","估算","#ff9f6b");
+    box(0,"相對濕度",(d.hum===null||d.hum===undefined)?"--":d.hum+"%","天文台讀數");
+    box(1,"紫外線",(d.uv===null||d.uv===undefined)?"--":String(d.uv),d.uvD||"—","#ffd54f");
+    box(2,"體感",(d.feel===null||d.feel===undefined)?"--":d.feel+"°","估算","#ff9f6b");
     y += bh+26;
 
     /* ── 今日天氣預測 ── */
@@ -377,10 +379,10 @@
     ctx.fillStyle="#8fa6c2"; ctx.font="700 12px system-ui,-apple-system,'PingFang HK','Microsoft JhengHei',sans-serif";
     ctx.fillText("明日預報", PAD, y+2);
     y += 16;
-    box(0,"📈 明日高低", d.tmrRange||"--", "");
-    box(1,"☔ 降雨機會", d.tmrPsr||"--", "");
+    box(0,"明日高低", d.tmrRange||"--", "");
+    box(1,"降雨機會", d.tmrPsr||"--", "");
     var wx=String(d.tmrWx||"--");
-    box(2,"🌤 天氣", wx.length>5?wx.slice(0,5)+"…":wx, "");
+    box(2,"天氣", wx.length>5?wx.slice(0,5)+"…":wx, "");
     y += bh+26;
     hr(y); y += 26;
 
