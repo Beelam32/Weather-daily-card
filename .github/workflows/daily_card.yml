@@ -1,0 +1,62 @@
+name: Daily Card 09:00 HKT
+
+on:
+  schedule:
+    # UTC 01:00 = 香港 09:00（GitHub cron 用 UTC）
+    - cron: "0 1 * * *"
+  # 手動測試用：Actions 頁面撳「Run workflow」就得
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install CJK fonts
+        run: sudo apt-get update && sudo apt-get install -y fonts-noto-cjk
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Generate daily card
+        env:
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: python generate_daily_card.py
+
+      - name: Commit card to repo
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add output/
+          git commit -m "daily card $(date -u +%Y%m%d)" || echo "nothing to commit"
+          git push
+
+      - name: Send WhatsApp message (CallMeBot)
+        env:
+          CALLMEBOT_PHONE: ${{ secrets.CALLMEBOT_PHONE }}
+          CALLMEBOT_APIKEY: ${{ secrets.CALLMEBOT_APIKEY }}
+        run: |
+          python - <<'EOF'
+          import os, requests, urllib.parse
+          phone = os.environ.get("CALLMEBOT_PHONE", "")
+          apikey = os.environ.get("CALLMEBOT_APIKEY", "")
+          if not phone or not apikey:
+              print("未設定 secrets，跳過發送（張圖已 commit 上 repo）")
+              raise SystemExit(0)
+          msg = open("output/message.txt", encoding="utf-8").read()
+          url = "https://api.callmebot.com/whatsapp.php?" + urllib.parse.urlencode({
+              "phone": phone, "apikey": apikey, "text": msg,
+          })
+          r = requests.get(url, timeout=30)
+          print("CallMeBot:", r.status_code, r.text[:200])
+          EOF
