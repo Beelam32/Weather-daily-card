@@ -60,3 +60,26 @@ jobs:
           r = requests.get(url, timeout=30)
           print("CallMeBot:", r.status_code, r.text[:200])
           EOF
+
+      - name: Send Telegram (optional)
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          python - <<'EOF'
+          import os, requests
+          token = os.environ.get("TELEGRAM_BOT_TOKEN", "")
+          chat = os.environ.get("TELEGRAM_CHAT_ID", "")
+          if not token or not chat:
+              print("未設定 TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID，跳過")
+              raise SystemExit(0)
+          msg = open("output/message.txt", encoding="utf-8").read()
+          caption = "\n".join(l for l in msg.splitlines() if not l.startswith("📊"))
+          with open("output/latest.png", "rb") as f:
+              r = requests.post(
+                  f"https://api.telegram.org/bot{token}/sendPhoto",
+                  data={"chat_id": chat, "caption": caption},
+                  files={"photo": f}, timeout=60,
+              )
+          print("Telegram:", r.status_code, r.text[:300])
+          EOF

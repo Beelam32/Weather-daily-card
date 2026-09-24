@@ -182,6 +182,7 @@ def generate():
     fname = f"daily_card_{today.strftime('%Y%m%d')}.png"
     out = os.path.join("output", fname)
     img.save(out, "PNG")
+    img.save(os.path.join("output", "latest.png"), "PNG")  # 固定檔名，供網頁同 Telegram 使用
     print("saved:", out)
 
     # ---- 產生 WhatsApp 訊息文字 ----
