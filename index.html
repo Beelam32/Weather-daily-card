@@ -2,173 +2,72 @@
 <html lang="zh-HK">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta name="theme-color" content="#0a2038">
-<title>香港每朝簡報 · 實時</title>
+<meta name="theme-color" content="#07182b">
+<title>香港每朝簡報 · 實時一張圖</title>
 <style>
-  * { margin:0; padding:0; box-sizing:border-box; }
-  :root{
-    --bg1:#07182b; --bg2:#0d2c4d; --card:rgba(255,255,255,.055);
-    --line:rgba(255,255,255,.11); --txt:#eef4fb; --dim:#93a9c4;
-    --accent:#4fc3f7; --ok:#3ddc84; --warn:#ffb340; --bad:#ff5c5c;
-  }
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  :root{ --bg1:#07182b; --bg2:#0d2c4d; --line:rgba(255,255,255,.12);
+         --txt:#eef4fb; --dim:#93a9c4; --accent:#4fc3f7; --ok:#3ddc84; --bad:#ff5c5c; }
   html,body{ min-height:100%; }
   body{
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang HK","Microsoft JhengHei","Noto Sans TC",sans-serif;
     background:radial-gradient(120% 90% at 50% 0%, var(--bg2) 0%, var(--bg1) 62%) fixed;
-    color:var(--txt); -webkit-font-smoothing:antialiased; padding:20px 14px 46px;
-    display:flex; justify-content:center;
+    color:var(--txt); -webkit-font-smoothing:antialiased;
+    padding:14px 12px 34px; display:flex; flex-direction:column; align-items:center;
   }
-  .wrap{ width:100%; max-width:560px; }
+  .wrap{ width:100%; max-width:760px; }
 
-  header{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:18px; }
-  h1{ font-size:20px; letter-spacing:.4px; font-weight:700; }
-  h1 span{ opacity:.55; font-weight:400; font-size:13.5px; display:block; margin-top:3px; letter-spacing:0; }
-  .live{
-    display:inline-flex; align-items:center; gap:6px; font-size:11.5px; font-weight:600;
-    color:var(--ok); background:rgba(61,220,132,.12); border:1px solid rgba(61,220,132,.3);
-    padding:5px 10px; border-radius:20px; white-space:nowrap; flex:0 0 auto;
+  .bar{
+    display:flex; align-items:center; gap:8px; margin-bottom:12px; flex-wrap:wrap;
+    justify-content:space-between;
   }
+  .state{ display:inline-flex; align-items:center; gap:6px; font-size:11.5px; font-weight:600;
+          color:var(--ok); background:rgba(61,220,132,.12); border:1px solid rgba(61,220,132,.3);
+          padding:5px 10px; border-radius:20px; white-space:nowrap; }
   .dot{ width:7px; height:7px; border-radius:50%; background:var(--ok); animation:blink 1.6s infinite; }
   .dot.err{ background:var(--bad); }
   @keyframes blink{ 0%,100%{opacity:1} 50%{opacity:.25} }
-
-  .card{
-    background:var(--card); border:1px solid var(--line); border-radius:18px;
-    padding:18px; margin-bottom:14px; backdrop-filter:blur(10px);
+  .acts{ display:flex; gap:8px; }
+  button{
+    font-family:inherit; font-size:13px; font-weight:600; cursor:pointer;
+    padding:9px 14px; border-radius:11px; color:#cfeaff; transition:.18s;
+    background:rgba(79,195,247,.16); border:1px solid rgba(79,195,247,.38);
   }
-  .card h2{
-    font-size:11.5px; letter-spacing:1.4px; text-transform:uppercase; color:var(--dim);
-    font-weight:600; margin-bottom:14px; display:flex; justify-content:space-between; align-items:baseline; gap:8px;
+  button:hover{ background:rgba(79,195,247,.26); }
+  button:disabled{ opacity:.45; cursor:default; }
+
+  .stage{
+    border-radius:20px; overflow:hidden; border:1px solid var(--line);
+    box-shadow:0 18px 50px rgba(0,0,0,.42); background:#07182b; line-height:0;
   }
-  .card h2 em{ font-style:normal; font-size:11px; letter-spacing:0; text-transform:none; opacity:.85; }
+  canvas{ width:100%; height:auto; display:block; }
 
-  .hero{ display:flex; align-items:center; gap:18px; }
-  .hero img{ width:76px; height:76px; flex:0 0 76px; filter:drop-shadow(0 3px 10px rgba(0,0,0,.4)); }
-  .hero .now{ font-size:52px; font-weight:300; line-height:1; letter-spacing:-2px; }
-  .hero .now sup{ font-size:20px; font-weight:400; letter-spacing:0; vertical-align:super; opacity:.7; }
-  .hero .desc{ font-size:13px; color:var(--dim); margin-top:8px; }
-
-  .grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
-  .stat{ background:rgba(255,255,255,.045); border:1px solid var(--line); border-radius:13px; padding:12px 8px; text-align:center; }
-  .stat .k{ font-size:11px; color:var(--dim); margin-bottom:6px; letter-spacing:.2px; }
-  .stat .v{ font-size:19px; font-weight:600; letter-spacing:-.4px; }
-  .stat .v small{ font-size:11px; font-weight:400; opacity:.65; letter-spacing:0; }
-  .stat .s{ font-size:10.5px; color:var(--dim); margin-top:4px; min-height:14px; }
-
-  .todaywx{
-    margin-top:12px; background:rgba(79,195,247,.07); border:1px solid rgba(79,195,247,.2);
-    border-radius:13px; padding:12px 14px; font-size:13px; line-height:1.68; color:#d5e6f7;
-  }
-  .todaywx b{ display:block; color:var(--accent); font-size:11.5px; letter-spacing:.8px; margin-bottom:5px; text-transform:uppercase; }
-
-  .warnbar{
-    display:flex; align-items:flex-start; gap:9px; background:rgba(255,179,64,.13);
-    border:1px solid rgba(255,179,64,.35); color:#ffd18a; border-radius:12px;
-    padding:11px 13px; font-size:13px; font-weight:600; margin-bottom:14px; line-height:1.6;
-  }
-
-  .tun{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
-  .t{ border-radius:14px; padding:14px 8px; text-align:center; border:1px solid var(--line); background:rgba(255,255,255,.045); }
-  .t .name{ font-size:13px; font-weight:600; margin-bottom:8px; }
-  .t .min{ font-size:27px; font-weight:700; line-height:1; letter-spacing:-1px; }
-  .t .min small{ font-size:11px; font-weight:400; opacity:.6; letter-spacing:0; margin-left:1px; }
-  .t .badge{ display:inline-block; margin-top:8px; font-size:10.5px; font-weight:700; padding:3px 9px; border-radius:20px; }
-  .t.lv1{ border-color:rgba(255,92,92,.5); background:rgba(255,92,92,.1); }
-  .t.lv1 .badge{ background:rgba(255,92,92,.22); color:#ff8f8f; }
-  .t.lv2{ border-color:rgba(255,179,64,.5); background:rgba(255,179,64,.1); }
-  .t.lv2 .badge{ background:rgba(255,179,64,.22); color:#ffc46b; }
-  .t.lv3{ border-color:rgba(61,220,132,.42); background:rgba(61,220,132,.09); }
-  .t.lv3 .badge{ background:rgba(61,220,132,.2); color:#71eda5; }
-  .tun-note{ font-size:11px; color:var(--dim); margin-top:11px; line-height:1.55; }
-
-  .shot{ width:100%; border-radius:14px; display:block; border:1px solid var(--line); }
-  .shot-link{ display:inline-block; margin-top:11px; font-size:12px; color:var(--accent); text-decoration:none; }
-  .shot-link:hover{ text-decoration:underline; }
-
-  .foot{ text-align:center; font-size:11.5px; color:var(--dim); line-height:1.9; margin-top:20px; }
+  .foot{ text-align:center; font-size:11.5px; color:var(--dim); line-height:1.9; margin-top:14px; }
   .foot a{ color:var(--accent); text-decoration:none; }
-  .btn{
-    display:block; width:100%; margin:2px 0 0; padding:14px; border-radius:14px; cursor:pointer;
-    background:linear-gradient(180deg,rgba(79,195,247,.2),rgba(79,195,247,.08));
-    border:1px solid rgba(79,195,247,.4); color:#bfe8ff; font-size:14px; font-weight:600;
-    font-family:inherit; transition:.18s;
-  }
-  .btn:hover{ background:rgba(79,195,247,.22); }
-  .btn:disabled{ opacity:.5; cursor:default; }
-  .skel{ background:rgba(255,255,255,.075); border-radius:6px; display:inline-block; color:transparent; animation:pulse 1.3s infinite; }
-  @keyframes pulse{ 0%,100%{opacity:.45} 50%{opacity:.9} }
-  .err-box{ font-size:12.5px; color:#ff9a9a; background:rgba(255,92,92,.1); border:1px solid rgba(255,92,92,.3); border-radius:10px; padding:10px 12px; margin-top:12px; line-height:1.6; }
-  @media (max-width:400px){
-    .hero .now{ font-size:44px; } .hero img{ width:60px; height:60px; flex-basis:60px; }
-    .stat .v{ font-size:17px; } .t .min{ font-size:23px; } h1{ font-size:18px; }
-  }
 </style>
 </head>
 <body>
 <div class="wrap">
 
-  <header>
-    <h1>香港每朝簡報<span>即時天氣 · 過海路況</span></h1>
-    <div class="live" id="liveTag"><span class="dot" id="liveDot"></span><span id="liveTxt">連線中…</span></div>
-  </header>
-
-  <div id="warnSlot"></div>
-
-  <!-- 即時天氣 -->
-  <section class="card">
-    <h2><span>即時天氣 · 香港天文台</span><em id="sTime">--</em></h2>
-    <div class="hero">
-      <img id="wIcon" alt="天氣圖示" style="visibility:hidden">
-      <div>
-        <div class="now"><span id="wTemp" class="skel">--</span><sup>°C</sup></div>
-        <div class="desc">現時氣溫 · 天文台即時讀數</div>
-      </div>
+  <div class="bar">
+    <div class="state"><span class="dot" id="dot"></span><span id="stateTxt">載入中…</span></div>
+    <div class="acts">
+      <button id="btnRefresh">🔄 更新</button>
+      <button id="btnShare">📤 分享</button>
+      <button id="btnSave">⬇️ 儲存圖片</button>
     </div>
-    <div class="grid" style="margin-top:18px">
-      <div class="stat"><div class="k">💧 相對濕度</div><div class="v" id="sHum">--</div><div class="s">天文台讀數</div></div>
-      <div class="stat"><div class="k">🔆 紫外線</div><div class="v" id="sUv">--</div><div class="s" id="sUvD">--</div></div>
-      <div class="stat"><div class="k">🌡 體感溫度</div><div class="v" id="sFeel">--</div><div class="s">估算</div></div>
-    </div>
-    <div class="todaywx" id="todayWx" style="display:none"><b>今日天氣預測</b><span id="todayDesc"></span></div>
-    <div class="grid" style="margin-top:10px">
-      <div class="stat"><div class="k">📈 明日高低</div><div class="v" id="sRange">--</div></div>
-      <div class="stat"><div class="k">☔ 明日降雨機會</div><div class="v" id="sPsr">--</div></div>
-      <div class="stat"><div class="k">📅 明日預測</div><div class="v" id="sTomorrow" style="font-size:13px;line-height:1.4">--</div></div>
-    </div>
-    <div id="wxErr"></div>
-  </section>
+  </div>
 
-  <!-- 過海路況 -->
-  <section class="card">
-    <h2><span>過海隧道 · 運輸署即時</span><em id="tunTime"></em></h2>
-    <div class="tun">
-      <div class="t" id="tCH"><div class="name">紅隧</div><div class="min"><span class="skel">--</span></div><div class="badge">--</div></div>
-      <div class="t" id="tEH"><div class="name">東隧</div><div class="min"><span class="skel">--</span></div><div class="badge">--</div></div>
-      <div class="t" id="tWH"><div class="name">西隧</div><div class="min"><span class="skel">--</span></div><div class="badge">--</div></div>
-    </div>
-    <div class="tun-note">由灣仔（黃泥涌道北行）出發嘅過海行車時間 · 運輸署每 2 分鐘更新一次</div>
-    <div id="tunErr"></div>
-  </section>
-
-  <button class="btn" id="refresh">🔄 立即更新</button>
-
-  <!-- 今早自動卡 -->
-  <section class="card" style="margin-top:14px">
-    <h2><span>今早 09:00 自動生成卡</span></h2>
-    <img class="shot" id="morningShot" alt="今早自動生成嘅天氣交通卡" src="output/latest.png"
-         onerror="this.style.display='none';document.getElementById('shotErr').style.display='block'">
-    <div id="shotErr" style="display:none;font-size:12.5px;color:var(--dim)">暫時未有卡片（每日 09:00 自動生成）。</div>
-    <a class="shot-link" id="shotLink" href="output/latest.png" target="_blank" rel="noopener">開啟大圖 / 儲存 ↗</a>
-  </section>
+  <div class="stage"><canvas id="card"></canvas></div>
 
   <div class="foot">
-    數據直接嚟自 <a href="https://data.weather.gov.hk/" target="_blank" rel="noopener">香港天文台</a> 及
-    <a href="https://data.gov.hk/" target="_blank" rel="noopener">資料一線通 · 運輸署</a><br>
-    由 <a href="https://github.com/Beelam32/Weather-daily-card" target="_blank" rel="noopener">Beelam32/Weather-daily-card</a> 自動化 ·
-    每 3 分鐘自動刷新
+    即時數據直接嚟自 <a href="https://data.weather.gov.hk/" target="_blank" rel="noopener">香港天文台</a> 及
+    <a href="https://data.gov.hk/" target="_blank" rel="noopener">資料一線通 · 運輸署</a> ·
+    每 3 分鐘自動更新<br>
+    <a href="output/latest.png" target="_blank" rel="noopener">睇今晨 09:00 自動生成卡 ↗</a> ·
+    <a href="https://github.com/Beelam32/Weather-daily-card" target="_blank" rel="noopener">Beelam32/Weather-daily-card</a>
   </div>
 
 </div>
@@ -178,214 +77,453 @@
   "use strict";
   var API = "https://data.weather.gov.hk/weatherAPI/opendata/weather.php?lang=tc&dataType=";
   var JTIS = "https://resource.data.one.gov.hk/td/jss/Journeytimev2.xml";
-  var VANTAGE = "H4";                    // 黃泥涌道北行（灣仔）
-  var TUNNELS = [["CH","tCH"],["EH","tEH"],["WH","tWH"]];
-  var STATUS = {1:["塞車","lv1"],2:["繁忙","lv2"],3:["暢通","lv3"]};
-  var PSR_MAP = {low:"低", medium:"中", high:"高"};
+  var VANTAGE = "H4";                      // 黃泥涌道北行（灣仔）
+  var TUNNELS = [["CH","紅隧"],["EH","東隧"],["WH","西隧"]];
+  var ST = {1:{t:"塞車",c:"#ff5c5c"},2:{t:"繁忙",c:"#ffb340"},3:{t:"暢通",c:"#3ddc84"}};
+  var PSR = {low:"低",medium:"中",high:"高"};
   var REFRESH_MS = 3*60*1000;
+  var W = 760, PAD = 44;
+  var INNER = W - PAD*2;
 
-  function $(id){ return document.getElementById(id); }
-  function setText(id, t){ var n=$(id); if(n) n.textContent = t; }
-  function unskel(id){ var n=$(id); if(n) n.classList.remove("skel"); }
-  function stripTags(s){ return String(s).replace(/<[^>]*>/g," ").replace(/\s+/g," ").trim(); }
-  function hhmm(iso){
-    var m = String(iso||"").match(/T(\d{2}):(\d{2})/);
-    return m ? m[1]+":"+m[2] : "--";
-  }
-  function pickPlace(arr, name){
-    if(!Array.isArray(arr) || !arr.length) return null;
-    for(var i=0;i<arr.length;i++){ if(arr[i] && arr[i].place === name) return arr[i]; }
+  var canvas = document.getElementById("card");
+  var dpr = Math.min(window.devicePixelRatio || 1, 3);
+  var lastData = null, busy = false, timer = null;
+
+  /* ══════════ 資料抓取 ══════════ */
+  function bust(u){ return u + (u.indexOf("?")>-1?"&":"?") + "_=" + Date.now(); }
+  function getJSON(u){ return fetch(bust(u), {cache:"no-store"}).then(function(r){
+    if(!r.ok) throw new Error("HTTP "+r.status); return r.json(); }); }
+  function getText(u){ return fetch(bust(u), {cache:"no-store"}).then(function(r){
+    if(!r.ok) throw new Error("HTTP "+r.status); return r.text(); }); }
+  function stripTags(s){ return String(s||"").replace(/<[^>]*>/g," ").replace(/\s+/g," ").trim(); }
+  function pick(arr, name){
+    if(!Array.isArray(arr)||!arr.length) return null;
+    for(var i=0;i<arr.length;i++){ if(arr[i]&&arr[i].place===name) return arr[i]; }
     return arr[0];
   }
-  /* 體感溫度估算（澳洲氣象局 Steadman 公式；無風速資料時假設微風 0 m/s）
-     AT = T + 0.33e − 0.70×風速 − 4.00 ， e = RH/100 × 6.105 × exp(17.27T/(237.7+T)) */
-  function apparent(T, RH){
-    if (T === null || RH === null) return null;
-    var e = (RH/100) * 6.105 * Math.exp(17.27*T/(237.7+T));
-    return T + 0.33*e - 4.00;
-  }
-  function getJSON(url){
-    return fetch(url, {cache:"no-store"}).then(function(r){
-      if(!r.ok) throw new Error("HTTP " + r.status);
-      return r.json();
-    });
-  }
-  function getText(url){
-    return fetch(url, {cache:"no-store"}).then(function(r){
-      if(!r.ok) throw new Error("HTTP " + r.status);
-      return r.text();
-    });
-  }
-  function bust(u){ return u + (u.indexOf("?") > -1 ? "&" : "?") + "_=" + Date.now(); }
-
-  /* ── 1. 天文台即時讀數 ── */
-  function loadWeather(){
-    return getJSON(bust(API + "rhrread")).then(function(d){
-      var t  = pickPlace(d.temperature && d.temperature.data, "香港天文台");
-      var h  = pickPlace(d.humidity && d.humidity.data, "香港天文台");
-      var uv = pickPlace(d.uvindex && d.uvindex.data, "京士柏");
-      var T  = t ? Number(t.value) : null;
-      var RH = h ? Number(h.value) : null;
-
-      if (T !== null){ setText("wTemp", T); unskel("wTemp"); }
-      setText("sHum", RH !== null ? RH + "%" : "--");
-      if (uv && uv.value !== undefined){
-        setText("sUv", uv.value);
-        setText("sUvD", uv.desc || "");
-      }
-      var feel = apparent(T, RH);
-      setText("sFeel", feel !== null ? Math.round(feel) + "°" : "--");
-      setText("sTime", "更新 " + hhmm(d.updateTime));
-
-      var ic = Array.isArray(d.icon) ? d.icon[0] : d.icon;
-      if (ic !== undefined && ic !== null){
-        var img = $("wIcon");
-        img.onload  = function(){ img.style.visibility = "visible"; };
-        img.onerror = function(){ img.style.visibility = "hidden"; };
-        img.src = "https://www.hko.gov.hk/images/HKOWxIconOutline/pic" + ic + ".png";
-      }
-      var wm = stripTags(d.warningMessage || "");
-      if (wm){
-        wm = wm.replace(/^正在生效的警告[：:]\s*/, "");
-        $("warnSlot").innerHTML = '<div class="warnbar">⚠️ <span>' + wm + '</span></div>';
-      } else {
-        $("warnSlot").innerHTML = "";
-      }
-    });
+  function hhmm(iso){ var m=String(iso||"").match(/T(\d{2}):(\d{2})/); return m?m[1]+":"+m[2]:"--"; }
+  /* 體感溫度（Steadman，無風速資料當 0） */
+  function apparent(T,RH){
+    if(T===null||RH===null) return null;
+    var e=(RH/100)*6.105*Math.exp(17.27*T/(237.7+T));
+    return T+0.33*e-4.00;
   }
 
-  /* ── 2. 今日天氣預測（flw） ── */
-  function loadTodayWx(){
-    return getJSON(bust(API + "flw")).then(function(d){
-      var desc = stripTags(d.forecastDesc || "");
-      var head = stripTags(d.forecastPeriod || "今日天氣預測");
-      if (desc){
-        var box = $("todayWx");
-        box.querySelector("b").textContent = head;
-        setText("todayDesc", desc);
-        box.style.display = "block";
-      }
-    });
-  }
+  function fetchAll(){
+    var out = { tunnels:[], updated:"--", warn:"", ok:false };
+    var jobs = [];
 
-  /* ── 3. 明日預報（fnd · 第一日＝明日） ── */
-  function loadTomorrow(){
-    return getJSON(bust(API + "fnd")).then(function(d){
-      var list = d.weatherForecast || [];
-      if (!list.length) return;
-      var tm = list[0];
-      var mn = tm.forecastMintemp && tm.forecastMintemp.value;
-      var mx = tm.forecastMaxtemp && tm.forecastMaxtemp.value;
-      if (mn !== undefined && mx !== undefined) setText("sRange", mn + "–" + mx + "°");
-      var psr = tm.PSR;
-      if (psr) setText("sPsr", PSR_MAP[String(psr).toLowerCase()] || psr);
-      var wx = stripTags(tm.forecastWeather || "").replace(/。$/, "");
-      if (wx){
-        var short = wx.split(/[，,。]/)[0];
-        setText("sTomorrow", short.length > 9 ? short.slice(0,9) + "…" : short);
-        $("sTomorrow").title = wx;
-      } else {
-        setText("sTomorrow", tm.week || "--");
-      }
-    });
-  }
+    jobs.push(getJSON(API+"rhrread").then(function(d){
+      var t=pick(d.temperature&&d.temperature.data,"香港天文台");
+      var h=pick(d.humidity&&d.humidity.data,"香港天文台");
+      var u=pick(d.uvindex&&d.uvindex.data,"京士柏");
+      out.temp = t?Number(t.value):null;
+      out.hum  = h?Number(h.value):null;
+      out.uv   = u?u.value:null;
+      out.uvD  = u?(u.desc||""):"";
+      out.icon = Array.isArray(d.icon)?d.icon[0]:d.icon;
+      out.feel = Math.round(apparent(out.temp,out.hum));
+      if(!isFinite(out.feel)) out.feel=null;
+      out.updated = hhmm(d.updateTime);
+      out.warn = stripTags(d.warningMessage||"").replace(/^正在生效的警告[：:]\s*/,"");
+      out.ok = true;
+    }).catch(function(){}));
 
-  /* ── 4. 運輸署過海行車時間 ── */
-  function loadTraffic(){
-    return getText(bust(JTIS)).then(function(txt){
-      var doc;
-      try { doc = new DOMParser().parseFromString(txt, "text/xml"); }
-      catch(e){ throw new Error("XML 解析失敗"); }
-      var rows = doc.getElementsByTagNameNS("*", "jtis_journey_time");
-      var found = {}, capture = "";
-      for (var i=0;i<rows.length;i++){
-        var row = rows[i];
-        var gv = function(tag){
-          var n = row.getElementsByTagNameNS("*", tag)[0];
-          return n ? String(n.textContent || "").trim() : "";
-        };
-        if (gv("LOCATION_ID") !== VANTAGE || gv("JOURNEY_TYPE") !== "1") continue;
-        found[gv("DESTINATION_ID")] = [parseInt(gv("JOURNEY_DATA"),10), parseInt(gv("COLOUR_ID"),10)];
-        if (!capture) capture = gv("CAPTURE_DATE");
+    jobs.push(getJSON(API+"flw").then(function(d){
+      out.todayHead = stripTags(d.forecastPeriod||"今日天氣預測");
+      out.todayDesc = stripTags(d.forecastDesc||"");
+    }).catch(function(){}));
+
+    jobs.push(getJSON(API+"fnd").then(function(d){
+      var tm=(d.weatherForecast||[])[0];
+      if(!tm) return;
+      var mn=tm.forecastMintemp&&tm.forecastMintemp.value;
+      var mx=tm.forecastMaxtemp&&tm.forecastMaxtemp.value;
+      out.tmrRange = (mn!==undefined&&mx!==undefined) ? mn+"–"+mx+"°" : "--";
+      out.tmrPsr = PSR[String(tm.PSR||"").toLowerCase()] || tm.PSR || "--";
+      out.tmrWx = stripTags(tm.forecastWeather||"").replace(/。$/,"");
+    }).catch(function(){}));
+
+    jobs.push(getText(JTIS).then(function(txt){
+      var doc=new DOMParser().parseFromString(txt,"text/xml");
+      var rows=doc.getElementsByTagNameNS("*","jtis_journey_time");
+      var found={}, cap="";
+      for(var i=0;i<rows.length;i++){
+        var g=function(tag){ var n=rows[i].getElementsByTagNameNS("*",tag)[0];
+          return n?String(n.textContent||"").trim():""; };
+        if(g("LOCATION_ID")!==VANTAGE||g("JOURNEY_TYPE")!=="1") continue;
+        found[g("DESTINATION_ID")]=[parseInt(g("JOURNEY_DATA"),10),parseInt(g("COLOUR_ID"),10)];
+        if(!cap) cap=g("CAPTURE_DATE");
       }
-      var got = 0;
       TUNNELS.forEach(function(t){
-        var cell = $(t[1]); if(!cell) return;
-        var rec = found[t[0]];
-        if (!rec || isNaN(rec[0])){
-          cell.className = "t";
-          cell.querySelector(".min").innerHTML = '<span style="font-size:15px;opacity:.5">暫無數據</span>';
-          cell.querySelector(".badge").textContent = "—";
-          return;
-        }
-        got++;
-        var st = STATUS[rec[1]] || ["—",""];
-        cell.className = "t " + st[1];
-        cell.querySelector(".min").innerHTML = rec[0] + '<small>分鐘</small>';
-        cell.querySelector(".badge").textContent = st[0];
+        var r=found[t[0]];
+        out.tunnels.push({ name:t[1],
+          min: (r&&!isNaN(r[0]))?r[0]:null,
+          lv:  (r&&ST[r[1]])?r[1]:0 });
       });
-      if (got) setText("tunTime", "路況 " + hhmm(capture));
-      else throw new Error("未收到路線數據");
-    });
+      out.tunTime = hhmm(cap);
+    }).catch(function(){}));
+
+    return Promise.all(jobs).then(function(){ return out; });
   }
 
-  /* ── 主流程 ── */
-  var busy = false, timer = null;
-  function refreshAll(){
+  /* ══════════ Canvas 繪圖 ══════════ */
+  function rr(ctx,x,y,w,h,r){
+    if (ctx.roundRect){ ctx.beginPath(); ctx.roundRect(x,y,w,h,r); return; }
+    r=Math.min(r,w/2,h/2);
+    ctx.beginPath();
+    ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r);
+    ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath();
+  }
+  function wrap(ctx,text,x,y,maxW,lh){
+    var chars=String(text||"").split(""), line="", lines=[];
+    for(var i=0;i<chars.length;i++){
+      var t2=line+chars[i];
+      if(ctx.measureText(t2).width>maxW && line){ lines.push(line); line=chars[i]; }
+      else line=t2;
+    }
+    if(line) lines.push(line);
+    lines.forEach(function(l,i){ ctx.fillText(l,x,y+i*lh); });
+    return y+(lines.length-1||0)*lh;
+  }
+  /* 天氣符號（自己畫，唔靠外部圖，確保可以匯出） */
+  function glyphFor(code){
+    var c=Number(code);
+    if(!isFinite(c)) return "cloud";
+    if(c>=83&&c<=85) return "thunder";
+    if(c>=80&&c<=82) return "rain";
+    if(c>=70&&c<=75) return "sun";            // 夜間晴朗 → 用太陽符號保持易讀
+    if(c>=50&&c<=54) return "sun";
+    if(c>=60&&c<=62) return "pcloud";
+    if(c>=63&&c<=65) return "rain";
+    if(c>=76&&c<=77) return "cloud";
+    if(c>=90&&c<=91) return "fog";
+    if(c>=92) return "cold";
+    return "cloud";
+  }
+  function drawCloud(ctx,cx,cy,s,fill){
+    ctx.fillStyle=fill;
+    ctx.beginPath();
+    ctx.arc(cx-s*0.34,cy+s*0.06,s*0.34,0,Math.PI*2);
+    ctx.arc(cx-s*0.02,cy-s*0.20,s*0.44,0,Math.PI*2);
+    ctx.arc(cx+s*0.38,cy+s*0.06,s*0.32,0,Math.PI*2);
+    ctx.rect(cx-s*0.62,cy+s*0.04,s*1.20,s*0.36);
+    ctx.fill();
+  }
+  function drawGlyph(ctx,type,cx,cy,R){
+    ctx.save();
+    ctx.lineCap="round"; ctx.lineJoin="round";
+    var sunC="#ffcc33", cloudC="#d3e3f5", rainC="#63c2f5", boltC="#ffd54f";
+    if(type==="sun"){
+      ctx.fillStyle=sunC; ctx.beginPath(); ctx.arc(cx,cy,R*0.44,0,Math.PI*2); ctx.fill();
+      ctx.strokeStyle=sunC; ctx.lineWidth=R*0.10;
+      for(var i=0;i<8;i++){
+        var a=i*Math.PI/4;
+        ctx.beginPath();
+        ctx.moveTo(cx+Math.cos(a)*R*0.66, cy+Math.sin(a)*R*0.66);
+        ctx.lineTo(cx+Math.cos(a)*R*0.94, cy+Math.sin(a)*R*0.94);
+        ctx.stroke();
+      }
+    } else if(type==="pcloud"){
+      ctx.fillStyle=sunC; ctx.beginPath(); ctx.arc(cx+R*0.34,cy-R*0.34,R*0.34,0,Math.PI*2); ctx.fill();
+      drawCloud(ctx,cx-R*0.10,cy+R*0.16,R*0.98,cloudC);
+    } else if(type==="cloud"){
+      drawCloud(ctx,cx,cy,R*1.02,cloudC);
+    } else if(type==="rain"){
+      drawCloud(ctx,cx,cy-R*0.22,R*0.98,cloudC);
+      ctx.strokeStyle=rainC; ctx.lineWidth=R*0.11;
+      for(var j=-1;j<=1;j++){
+        ctx.beginPath();
+        ctx.moveTo(cx+j*R*0.40, cy+R*0.34);
+        ctx.lineTo(cx+j*R*0.40-R*0.12, cy+R*0.76);
+        ctx.stroke();
+      }
+    } else if(type==="thunder"){
+      drawCloud(ctx,cx,cy-R*0.24,R*0.96,cloudC);
+      ctx.fillStyle=boltC; ctx.beginPath();
+      ctx.moveTo(cx+R*0.06,cy+R*0.22);
+      ctx.lineTo(cx-R*0.20,cy+R*0.66);
+      ctx.lineTo(cx+R*0.02,cy+R*0.66);
+      ctx.lineTo(cx-R*0.10,cy+R*1.02);
+      ctx.lineTo(cx+R*0.26,cy+R*0.54);
+      ctx.lineTo(cx+R*0.02,cy+R*0.54);
+      ctx.closePath(); ctx.fill();
+    } else if(type==="fog"){
+      drawCloud(ctx,cx,cy-R*0.30,R*0.92,cloudC);
+      ctx.strokeStyle="rgba(211,227,245,.75)"; ctx.lineWidth=R*0.10;
+      for(var k=0;k<3;k++){
+        ctx.beginPath();
+        ctx.moveTo(cx-R*0.62+k*R*0.10, cy+R*0.34+k*R*0.30);
+        ctx.lineTo(cx+R*0.62-k*R*0.06, cy+R*0.34+k*R*0.30);
+        ctx.stroke();
+      }
+    } else if(type==="cold"){
+      drawCloud(ctx,cx,cy-R*0.22,R*0.94,"#e8f2ff");
+      ctx.strokeStyle="#9fd8ff"; ctx.lineWidth=R*0.10;
+      ctx.beginPath(); ctx.moveTo(cx,cy+R*0.28); ctx.lineTo(cx,cy+R*0.94); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx-R*0.28,cy+R*0.46); ctx.lineTo(cx+R*0.28,cy+R*0.76); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx+R*0.28,cy+R*0.46); ctx.lineTo(cx-R*0.28,cy+R*0.76); ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  function paint(ctx,d){
+    var y = PAD;
+
+    /* ── 背景 ── */
+    var g = ctx.createLinearGradient(0,0,0,ctx.canvas.__H||1200);
+    g.addColorStop(0,"#0e3055"); g.addColorStop(.55,"#0a2340"); g.addColorStop(1,"#07182b");
+    ctx.fillStyle=g; ctx.fillRect(0,0,W,ctx.canvas.__H||1200);
+    var rg = ctx.createRadialGradient(W*0.5,-40,10,W*0.5,-40,520);
+    rg.addColorStop(0,"rgba(79,195,247,.16)"); rg.addColorStop(1,"rgba(79,195,247,0)");
+    ctx.fillStyle=rg; ctx.fillRect(0,0,W,520);
+
+    /* ── 標題 ── */
+    var now=new Date();
+    var WD=["星期日","星期一","星期二","星期三","星期四","星期五","星期六"];
+    ctx.fillStyle="#eef4fb"; ctx.font="700 34px system-ui,-apple-system,'PingFang HK','Microsoft JhengHei',sans-serif";
+    ctx.textAlign="left"; ctx.textBaseline="alphabetic";
+    ctx.fillText((now.getMonth()+1)+"月"+now.getDate()+"日 · "+WD[now.getDay()], PAD, y+30);
+    ctx.fillStyle="#7f98b6"; ctx.font="500 14px system-ui,-apple-system,'PingFang HK','Microsoft JhengHei',sans-serif";
+    ctx.fillText("香港每朝簡報 · 即時數據", PAD, y+56);
+    ctx.textAlign="right";
+    ctx.fillStyle="#4fc3f7"; ctx.font="600 13px system-ui,-apple-system,'PingFang HK','Microsoft JhengHei',sans-serif";
+    ctx.fillText("更新 "+d.updated, W-PAD, y+30);
+    ctx.fillStyle="#7f98b6"; ctx.font="500 12px system-ui,-apple-system,'PingFang HK','Microsoft JhengHei',sans-serif";
+    ctx.fillText("每 3 分鐘自動刷新", W-PAD, y+52);
+    ctx.textAlign="left";
+    y += 78;
+
+    /* 警告條 */
+    if (d.warn){
+      ctx.font="600 14px system-ui,-apple-system,'PingFang HK','Microsoft JhengHei',sans-serif";
+      var wLines=[]; var wl="";
+      var wc=String(d.warn).split("");
+      for(var wi=0;wi<wc.length;wi++){
+        var wt=wl+wc[wi];
+        if(ctx.measureText(wt).width>INNER-56 && wl){ wLines.push(wl); wl=wc[wi]; } else wl=wt;
+      }
+      if(wl) wLines.push(wl);
+      var wH = 26 + wLines.length*21;
+      ctx.fillStyle="rgba(255,179,64,.14)"; ctx.strokeStyle="rgba(255,179,64,.42)"; ctx.lineWidth=1;
+      rr(ctx,PAD,y,INNER,wH,12); ctx.fill(); ctx.stroke();
+      ctx.fillStyle="#ffd18a";
+      wLines.forEach(function(l,i){ ctx.fillText(l, PAD+16, y+26+i*21); });
+      y += wH + 20;
+    }
+
+    /* ── 分隔線 ── */
+    function hr(yy){ ctx.strokeStyle="rgba(255,255,255,.10)"; ctx.lineWidth=1;
+      ctx.beginPath(); ctx.moveTo(PAD,yy); ctx.lineTo(W-PAD,yy); ctx.stroke(); }
+
+    /* ── 即時氣溫 ── */
+    var glyph = glyphFor(d.icon);
+    drawGlyph(ctx,glyph,PAD+52,y+56,50);
+    ctx.textAlign="left";
+    ctx.fillStyle="#ffffff";
+    ctx.font="200 92px system-ui,-apple-system,'PingFang HK','Microsoft JhengHei',sans-serif";
+    var tempStr = (d.temp===null||d.temp===undefined) ? "--" : String(d.temp);
+    ctx.fillText(tempStr, PAD+124, y+86);
+    var tw = ctx.measureText(tempStr).width;
+    ctx.font="300 26px system-ui,-apple-system,'PingFang HK','Microsoft JhengHei',sans-serif";
+    ctx.fillStyle="rgba(255,255,255,.55)";
+    ctx.fillText("°C", PAD+132+tw, y+86);
+    ctx.font="500 14px system-ui,-apple-system,'PingFang HK','Microsoft JhengHei',sans-serif";
+    ctx.fillStyle="#7f98b6";
+    ctx.fillText("現時氣溫 · 香港天文台", PAD+124, y+112);
+    y += 148;
+    hr(y); y += 26;
+
+    /* ── 三格數據 ── */
+    var bw=(INNER-32)/3, bh=92, gap=16;
+    function box(i,label,val,sub,color){
+      var bx=PAD+i*(bw+gap);
+      ctx.fillStyle="rgba(255,255,255,.05)"; ctx.strokeStyle="rgba(255,255,255,.10)"; ctx.lineWidth=1;
+      rr(ctx,bx,y,bw,bh,14); ctx.fill(); ctx.stroke();
+      ctx.textAlign="center";
+      ctx.fillStyle="#8fa6c2"; ctx.font="500 13px system-ui,-apple-system,'PingFang HK','Microsoft JhengHei',sans-serif";
+      ctx.fillText(label, bx+bw/2, y+26);
+      ctx.fillStyle=color||"#eef4fb"; ctx.font="700 28px system-ui,-apple-system,'PingFang HK','Microsoft JhengHei',sans-serif";
+      ctx.fillText(val, bx+bw/2, y+62);
+      ctx.fillStyle="#7f98b6"; ctx.font="500 12px system-ui,-apple-system,'PingFang HK','Microsoft JhengHei',sans-serif";
+      ctx.fillText(sub||"", bx+bw/2, y+80);
+      ctx.textAlign="left";
+    }
+    box(0,"💧 相對濕度",(d.hum===null||d.hum===undefined)?"--":d.hum+"%","天文台讀數");
+    box(1,"🔆 紫外線",(d.uv===null||d.uv===undefined)?"--":String(d.uv),d.uvD||"—","#ffd54f");
+    box(2,"🌡 體感",(d.feel===null||d.feel===undefined)?"--":d.feel+"°","估算","#ff9f6b");
+    y += bh+26;
+
+    /* ── 今日天氣預測 ── */
+    if (d.todayDesc){
+      ctx.font="500 14.5px system-ui,-apple-system,'PingFang HK','Microsoft JhengHei',sans-serif";
+      var tLines=[], tl="", tc=String(d.todayDesc).split("");
+      for(var ti=0;ti<tc.length;ti++){
+        var tt=tl+tc[ti];
+        if(ctx.measureText(tt).width>INNER-32 && tl){ tLines.push(tl); tl=tc[ti]; } else tl=tt;
+      }
+      if(tl) tLines.push(tl);
+      var tH = 30 + tLines.length*23 + 14;
+      ctx.fillStyle="rgba(79,195,247,.07)"; ctx.strokeStyle="rgba(79,195,247,.22)"; ctx.lineWidth=1;
+      rr(ctx,PAD,y,INNER,tH,14); ctx.fill(); ctx.stroke();
+      ctx.fillStyle="#4fc3f7"; ctx.font="700 12px system-ui,-apple-system,'PingFang HK','Microsoft JhengHei',sans-serif";
+      ctx.fillText(String(d.todayHead||"今日天氣預測").toUpperCase(), PAD+16, y+24);
+      ctx.fillStyle="#d5e6f7"; ctx.font="500 14.5px system-ui,-apple-system,'PingFang HK','Microsoft JhengHei',sans-serif";
+      tLines.forEach(function(l,i){ ctx.fillText(l, PAD+16, y+48+i*23); });
+      y += tH+26;
+    }
+
+    /* ── 明日預報 ── */
+    ctx.fillStyle="#8fa6c2"; ctx.font="700 12px system-ui,-apple-system,'PingFang HK','Microsoft JhengHei',sans-serif";
+    ctx.fillText("明日預報", PAD, y+2);
+    y += 16;
+    box(0,"📈 明日高低", d.tmrRange||"--", "");
+    box(1,"☔ 降雨機會", d.tmrPsr||"--", "");
+    var wx=String(d.tmrWx||"--");
+    box(2,"🌤 天氣", wx.length>5?wx.slice(0,5)+"…":wx, "");
+    y += bh+26;
+    hr(y); y += 26;
+
+    /* ── 過海隧道 ── */
+    ctx.fillStyle="#8fa6c2"; ctx.font="700 12px system-ui,-apple-system,'PingFang HK','Microsoft JhengHei',sans-serif";
+    ctx.fillText("過海隧道 · 運輸署即時", PAD, y+2);
+    ctx.textAlign="right"; ctx.fillStyle="#7f98b6"; ctx.font="500 12px system-ui,-apple-system,'PingFang HK','Microsoft JhengHei',sans-serif";
+    ctx.fillText(d.tunTime?("路況 "+d.tunTime):"", W-PAD, y+2);
+    ctx.textAlign="left";
+    y += 18;
+    var tbw=(INNER-32)/3, tbh=116;
+    var list = d.tunnels && d.tunnels.length ? d.tunnels : [
+      {name:"紅隧",min:null,lv:0},{name:"東隧",min:null,lv:0},{name:"西隧",min:null,lv:0}];
+    list.forEach(function(t,i){
+      var bx=PAD+i*(tbw+gap);
+      var col = ST[t.lv] ? ST[t.lv].c : "rgba(255,255,255,.25)";
+      ctx.fillStyle = ST[t.lv] ? "rgba(255,255,255,.05)" : "rgba(255,255,255,.035)";
+      ctx.strokeStyle = col; ctx.lineWidth = ST[t.lv] ? 1.4 : 1;
+      rr(ctx,bx,y,tbw,tbh,14); ctx.fill(); ctx.stroke();
+
+      ctx.textAlign="center";
+      ctx.fillStyle="#eef4fb"; ctx.font="600 15px system-ui,-apple-system,'PingFang HK','Microsoft JhengHei',sans-serif";
+      ctx.fillText(t.name, bx+tbw/2, y+28);
+      if (t.min===null){
+        ctx.fillStyle="#7f98b6"; ctx.font="500 15px system-ui,-apple-system,'PingFang HK','Microsoft JhengHei',sans-serif";
+        ctx.fillText("暫無數據", bx+tbw/2, y+68);
+      } else {
+        ctx.fillStyle=col; ctx.font="700 38px system-ui,-apple-system,'PingFang HK','Microsoft JhengHei',sans-serif";
+        ctx.fillText(String(t.min), bx+tbw/2, y+66);
+        var mw=ctx.measureText(String(t.min)).width;
+        ctx.fillStyle="#7f98b6"; ctx.font="500 13px system-ui,-apple-system,'PingFang HK','Microsoft JhengHei',sans-serif";
+        ctx.fillText("分鐘", bx+tbw/2+mw/2+18, y+66);
+        /* 狀態膠囊 */
+        var lbl = ST[t.lv]?ST[t.lv].t:"—";
+        ctx.font="700 12px system-ui,-apple-system,'PingFang HK','Microsoft JhengHei',sans-serif";
+        var pw=ctx.measureText(lbl).width+22, ph=22;
+        ctx.fillStyle=ST[t.lv]?"rgba(255,255,255,.09)":"rgba(255,255,255,.05)";
+        rr(ctx,bx+tbw/2-pw/2, y+78, pw, ph, 11); ctx.fill();
+        ctx.fillStyle=col;
+        ctx.fillText(lbl, bx+tbw/2, y+93);
+      }
+      ctx.textAlign="left";
+    });
+    y += tbh + 22;
+
+    ctx.fillStyle="#6d86a5"; ctx.font="500 12px system-ui,-apple-system,'PingFang HK','Microsoft JhengHei',sans-serif";
+    ctx.fillText("起點：灣仔 黃泥涌道北行 · JTIS 每 2 分鐘更新", PAD, y);
+    y += 26;
+
+    /* ── 底部 ── */
+    hr(y); y += 22;
+    ctx.fillStyle="#5f7794"; ctx.font="500 11.5px system-ui,-apple-system,'PingFang HK','Microsoft JhengHei',sans-serif";
+    ctx.fillText("資料來源：香港天文台 · 運輸署 JTIS　|　自動生成 "+
+                 ("0"+now.getHours()).slice(-2)+":"+("0"+now.getMinutes()).slice(-2), PAD, y);
+    y += PAD;
+    return y;
+  }
+
+  function render(d){
+    var ctx, h;
+    canvas.width = W*dpr; canvas.height = 2400*dpr;
+    ctx = canvas.getContext("2d"); ctx.setTransform(dpr,0,0,dpr,0,0);
+    canvas.__H = 2400;
+    h = paint(ctx, d);
+
+    canvas.width = W*dpr; canvas.height = Math.round(h)*dpr;
+    ctx = canvas.getContext("2d"); ctx.setTransform(dpr,0,0,dpr,0,0);
+    canvas.__H = Math.round(h);
+    paint(ctx, d);
+  }
+
+  /* ══════════ 控制 ══════════ */
+  function setState(txt, err){
+    document.getElementById("stateTxt").textContent = txt;
+    document.getElementById("dot").className = err ? "dot err" : "dot";
+  }
+  function refresh(){
     if (busy) return;
     busy = true;
-    $("refresh").disabled = true;
-    $("liveTxt").textContent = "更新中…";
-    $("liveDot").className = "dot";
-
-    Promise.allSettled([loadWeather(), loadTodayWx(), loadTomorrow(), loadTraffic()])
-      .then(function(res){
-        var failed = [], names = ["即時天氣","今日預測","明日預報","過海路況"];
-        res.forEach(function(r,i){ if (r.status === "rejected") failed.push(names[i]); });
-
-        // 個別區塊錯誤提示
-        if (res[0].status === "rejected")
-          $("wxErr").innerHTML = '<div class="err-box">即時天氣載入失敗（' + res[0].reason.message + '），可以撳「立即更新」再試。</div>';
-        else $("wxErr").innerHTML = "";
-        if (res[3].status === "rejected")
-          $("tunErr").innerHTML = '<div class="err-box">過海路況載入失敗（' + res[3].reason.message + '），可以撳「立即更新」再試。</div>';
-        else $("tunErr").innerHTML = "";
-
-        var now = new Date();
-        var clock = ("0"+now.getHours()).slice(-2) + ":" + ("0"+now.getMinutes()).slice(-2);
-        if (failed.length){
-          $("liveTxt").textContent = failed.join("/") + " 失敗";
-          $("liveDot").className = "dot err";
-        } else {
-          $("liveTxt").textContent = "已更新 " + clock;
-          $("liveDot").className = "dot";
-        }
-        $("refresh").disabled = false;
-        busy = false;
-        if (timer) clearTimeout(timer);
-        timer = setTimeout(refreshAll, REFRESH_MS);
-      });
+    document.getElementById("btnRefresh").disabled = true;
+    setState("更新中…", false);
+    fetchAll().then(function(d){
+      lastData = d;
+      render(d);
+      var n=new Date();
+      var clock=("0"+n.getHours()).slice(-2)+":"+("0"+n.getMinutes()).slice(-2);
+      setState(d.ok ? ("已更新 "+clock) : "更新失敗", !d.ok);
+      document.getElementById("btnRefresh").disabled = false;
+      busy = false;
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(refresh, REFRESH_MS);
+    }).catch(function(e){
+      setState("更新失敗", true);
+      document.getElementById("btnRefresh").disabled = false;
+      busy = false;
+    });
   }
-
-  $("refresh").addEventListener("click", function(){
+  function fileName(){
+    var n=new Date(), p=function(x){return ("0"+x).slice(-2);};
+    return "hk_brief_"+n.getFullYear()+p(n.getMonth()+1)+p(n.getDate())+"_"+p(n.getHours())+p(n.getMinutes())+".png";
+  }
+  function toBlob(){
+    return new Promise(function(res){
+      if (canvas.toBlob) canvas.toBlob(function(b){ res(b); }, "image/png");
+      else res(null);
+    });
+  }
+  document.getElementById("btnRefresh").addEventListener("click", function(){
     if (timer) clearTimeout(timer);
-    refreshAll();
+    refresh();
+  });
+  document.getElementById("btnSave").addEventListener("click", function(){
+    toBlob().then(function(b){
+      if(!b){ setState("儲存失敗", true); return; }
+      var url=URL.createObjectURL(b);
+      var a=document.createElement("a");
+      a.href=url; a.download=fileName(); document.body.appendChild(a); a.click();
+      setTimeout(function(){ URL.revokeObjectURL(url); a.remove(); }, 4000);
+    });
+  });
+  document.getElementById("btnShare").addEventListener("click", function(){
+    toBlob().then(function(b){
+      if(!b){ setState("分享失敗", true); return; }
+      var f=new File([b], fileName(), {type:"image/png"});
+      if (navigator.canShare && navigator.canShare({files:[f]})){
+        navigator.share({files:[f], title:"香港每朝簡報", text:"今日天氣同過海路況"}).catch(function(){});
+      } else {
+        var url=URL.createObjectURL(b);
+        var a=document.createElement("a");
+        a.href=url; a.download=fileName(); document.body.appendChild(a); a.click();
+        setTimeout(function(){ URL.revokeObjectURL(url); a.remove(); }, 4000);
+        setState("已下載（此瀏覽器不支援直接分享）", false);
+      }
+    });
   });
   document.addEventListener("visibilitychange", function(){
     if (!document.hidden && !busy){
       if (timer) clearTimeout(timer);
-      refreshAll();
+      refresh();
     }
   });
 
-  // 卡片圖用防快取網址
-  (function(){
-    var t = Date.now();
-    var im = $("morningShot"); if (im) im.src = "output/latest.png?t=" + t;
-    var lk = $("shotLink");    if (lk) lk.href = "output/latest.png?t=" + t;
-  })();
-
-  refreshAll();
+  refresh();
 })();
 </script>
 </body>
