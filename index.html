@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>每朝簡報・香港天氣同行車時間</title>
+<meta property="og:title" content="每朝簡報・香港天氣同行車時間">
+<meta property="og:description" content="每日 09:00 自動更新的香港天氣同行車時間卡">
+<meta property="og:image" content="output/latest.png">
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 32px 16px 64px;
+    background: #0a2036;
+    color: #ffffff;
+    font-family: -apple-system, "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  header { text-align: center; max-width: 620px; margin-bottom: 24px; }
+  h1 { font-size: 22px; font-weight: 500; margin: 0 0 8px; letter-spacing: .5px; }
+  .sub { font-size: 14px; color: #9bbee1; margin: 0; line-height: 1.7; }
+  .badge {
+    display: inline-block; margin-top: 12px; padding: 4px 12px;
+    border: 1px solid #2f5c8a; border-radius: 999px;
+    font-size: 12.5px; color: #8fc0ee;
+  }
+  .card-wrap {
+    width: 100%; max-width: 540px;
+    border-radius: 16px; overflow: hidden;
+    background: #103054; border: 1px solid #1d4470;
+  }
+  .card-wrap img { display: block; width: 100%; height: auto; }
+  .meta { width: 100%; max-width: 540px; margin-top: 16px; font-size: 13px; color: #9bbee1; line-height: 1.9; }
+  .meta a { color: #7fb8ea; }
+  footer { max-width: 540px; margin-top: 32px; font-size: 12px; color: #6b8bad; text-align: center; line-height: 1.8; }
+</style>
+</head>
+<body>
+  <header>
+    <h1>每朝簡報</h1>
+    <p class="sub">香港天文台即時天氣 ＋ 運輸署過海隧道行車時間<br>每日香港時間 09:00 自動更新</p>
+    <span class="badge" id="updated">載入中…</span>
+  </header>
+
+  <div class="card-wrap">
+    <img id="card" alt="今日天氣交通卡" src="output/latest.png">
+  </div>
+
+  <div class="meta">
+    <div>唔使 refresh，每朝自動換新一張。資料每 2 分鐘更新，卡片每日 09:00 重新生成。</div>
+    <div style="margin-top:8px;">
+      <a id="hist" href="#">查看歷史卡片</a>　·　
+      <a href="https://github.com/Beelam32/Weather-daily-card">原始碼</a>
+    </div>
+  </div>
+
+  <footer>
+    資料來源：香港天文台開放數據・運輸署 JTIS 行車時間顯示器<br>
+    由 GitHub Actions 自動生成
+  </footer>
+
+<script>
+  var d = new Date();
+  var p = function (n) { return String(n).padStart(2, '0'); };
+  var stamp = d.getFullYear() + p(d.getMonth() + 1) + p(d.getDate()) + p(d.getHours());
+  document.getElementById('card').src = 'output/latest.png?v=' + stamp;
+  document.getElementById('updated').textContent =
+    '今日卡片・' + (d.getMonth() + 1) + '月' + d.getDate() + '日';
+  document.getElementById('hist').href =
+    'https://github.com/Beelam32/Weather-daily-card/tree/main/output';
+</script>
+</body>
+</html>
