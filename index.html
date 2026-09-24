@@ -37,6 +37,19 @@
   }
   button:hover{ background:rgba(79,195,247,.26); }
   button:disabled{ opacity:.45; cursor:default; }
+  select{
+    font-family:inherit; font-size:13px; font-weight:600; cursor:pointer;
+    padding:9px 30px 9px 12px; border-radius:11px; color:#cfeaff; transition:.18s;
+    background:rgba(79,195,247,.16); border:1px solid rgba(79,195,247,.38);
+    -webkit-appearance:none; -moz-appearance:none; appearance:none;
+    background-image:linear-gradient(45deg,transparent 50%,#9ec9e8 50%),
+                     linear-gradient(135deg,#9ec9e8 50%,transparent 50%);
+    background-position:calc(100% - 17px) 18px, calc(100% - 12px) 18px;
+    background-size:5px 5px, 5px 5px; background-repeat:no-repeat;
+    max-width:46vw;
+  }
+  select:focus{ outline:none; background-color:rgba(79,195,247,.26); }
+  select option{ background:#0b2340; color:#eef4fb; }
 
   .stage{
     border-radius:20px; overflow:hidden; border:1px solid var(--line);
@@ -54,9 +67,10 @@
   <div class="bar">
     <div class="state"><span class="dot" id="dot"></span><span id="stateTxt">載入中…</span></div>
     <div class="acts">
+      <select id="selVantage" title="選擇你的出發位置" aria-label="選擇你的出發位置"></select>
       <button id="btnRefresh">🔄 更新</button>
+      <button id="btnSave">📥 儲存</button>
       <button id="btnShare">📤 分享</button>
-      <button id="btnSave">⬇️ 儲存圖片</button>
     </div>
   </div>
 
@@ -66,6 +80,7 @@
     即時數據直接嚟自 <a href="https://data.weather.gov.hk/" target="_blank" rel="noopener">香港天文台</a> 及
     <a href="https://data.gov.hk/" target="_blank" rel="noopener">資料一線通 · 運輸署</a> ·
     每 3 分鐘自動更新<br>
+    <span style="color:#7f98b6">📥 iPhone 撳「儲存」→ 揀「<b>儲存圖像</b>」即入相片</span><br>
     <a href="output/latest.png" target="_blank" rel="noopener">睇今晨 09:00 自動生成卡 ↗</a> ·
     <a href="https://github.com/Beelam32/Weather-daily-card" target="_blank" rel="noopener">Beelam32/Weather-daily-card</a>
   </div>
@@ -77,7 +92,15 @@
   "use strict";
   var API = "https://data.weather.gov.hk/weatherAPI/opendata/weather.php?lang=tc&dataType=";
   var JTIS = "https://resource.data.one.gov.hk/td/jss/Journeytimev2.xml";
-  var VANTAGE = "H4";                      // 黃泥涌道北行（灣仔）
+  /* 運輸署 JTIS 可得三條過海隧道數據嘅起點（顯示器位置） */
+  var VANTAGES = [
+    ["H4",  "灣仔 黃泥涌道"],
+    ["H2",  "銅鑼灣 堅拿道天橋"],
+    ["H5",  "天后 興發街"],
+    ["K03", "旺角 窩打老道"],
+    ["K08", "九龍灣 啓祥道"]
+  ];
+  var VKEY = "hkbrief_vantage";
   var TUNNELS = [["CH","紅隧"],["EH","東隧"],["WH","西隧"]];
   var ST = {1:{t:"塞車",c:"#ff5c5c"},2:{t:"繁忙",c:"#ffb340"},3:{t:"暢通",c:"#3ddc84"}};
   var PSR = {low:"低",medium:"中",high:"高"};
@@ -88,6 +111,19 @@
   var canvas = document.getElementById("card");
   var dpr = Math.min(window.devicePixelRatio || 1, 3);
   var lastData = null, busy = false, timer = null;
+
+  function vantageName(id){
+    for(var i=0;i<VANTAGES.length;i++){ if(VANTAGES[i][0]===id) return VANTAGES[i][1]; }
+    return id;
+  }
+  function loadVantage(){
+    try{
+      var v = localStorage.getItem(VKEY);
+      for(var i=0;i<VANTAGES.length;i++){ if(VANTAGES[i][0]===v) return v; }
+    }catch(e){}
+    return VANTAGES[0][0];
+  }
+  var VANTAGE = loadVantage();
 
   /* ══════════ 資料抓取 ══════════ */
   function bust(u){ return u + (u.indexOf("?")>-1?"&":"?") + "_=" + Date.now(); }
@@ -338,14 +374,14 @@
 
     /* ── 三格數據 ── */
     var bw=(INNER-32)/3, bh=92, gap=16;
-    function box(i,label,val,sub,color){
+    function box(i,label,val,sub,color,valSize){
       var bx=PAD+i*(bw+gap);
       ctx.fillStyle="rgba(255,255,255,.05)"; ctx.strokeStyle="rgba(255,255,255,.10)"; ctx.lineWidth=1;
       rr(ctx,bx,y,bw,bh,14); ctx.fill(); ctx.stroke();
       ctx.textAlign="center";
       ctx.fillStyle="#8fa6c2"; ctx.font="500 13px system-ui,-apple-system,'PingFang HK','Microsoft JhengHei',sans-serif";
       ctx.fillText(label, bx+bw/2, y+26);
-      ctx.fillStyle=color||"#eef4fb"; ctx.font="700 28px system-ui,-apple-system,'PingFang HK','Microsoft JhengHei',sans-serif";
+      ctx.fillStyle=color||"#eef4fb"; ctx.font="700 "+(valSize||28)+"px system-ui,-apple-system,'PingFang HK','Microsoft JhengHei',sans-serif";
       ctx.fillText(val, bx+bw/2, y+62);
       ctx.fillStyle="#7f98b6"; ctx.font="500 12px system-ui,-apple-system,'PingFang HK','Microsoft JhengHei',sans-serif";
       ctx.fillText(sub||"", bx+bw/2, y+80);
@@ -382,7 +418,7 @@
     box(0,"明日高低", d.tmrRange||"--", "");
     box(1,"降雨機會", d.tmrPsr||"--", "");
     var wx=String(d.tmrWx||"--");
-    box(2,"天氣", wx.length>5?wx.slice(0,5)+"…":wx, "");
+    box(2,"天氣", wx.length>6?wx.slice(0,6)+"…":wx, "", "#eef4fb", 24);
     y += bh+26;
     hr(y); y += 26;
 
@@ -429,7 +465,7 @@
     y += tbh + 22;
 
     ctx.fillStyle="#6d86a5"; ctx.font="500 12px system-ui,-apple-system,'PingFang HK','Microsoft JhengHei',sans-serif";
-    ctx.fillText("起點：灣仔 黃泥涌道北行 · JTIS 每 2 分鐘更新", PAD, y);
+    ctx.fillText("起點："+vantageName(VANTAGE)+" · JTIS 每 2 分鐘更新", PAD, y);
     y += 26;
 
     /* ── 底部 ── */
@@ -494,26 +530,42 @@
     if (timer) clearTimeout(timer);
     refresh();
   });
+  function canShareFile(f){
+    return !!(navigator.canShare && navigator.canShare({files:[f]}));
+  }
+  function download(b){
+    var url=URL.createObjectURL(b);
+    var a=document.createElement("a");
+    a.href=url; a.download=fileName(); document.body.appendChild(a); a.click();
+    setTimeout(function(){ URL.revokeObjectURL(url); a.remove(); }, 4000);
+  }
+  /* iPhone／Android：開系統分享表，揀「儲存圖像」張卡就直接入相片 app；
+     唔支援分享檔案嘅瀏覽器（多數係桌面）就退回落載。 */
   document.getElementById("btnSave").addEventListener("click", function(){
     toBlob().then(function(b){
       if(!b){ setState("儲存失敗", true); return; }
-      var url=URL.createObjectURL(b);
-      var a=document.createElement("a");
-      a.href=url; a.download=fileName(); document.body.appendChild(a); a.click();
-      setTimeout(function(){ URL.revokeObjectURL(url); a.remove(); }, 4000);
+      var f=new File([b], fileName(), {type:"image/png"});
+      if (canShareFile(f)){
+        navigator.share({files:[f]}).then(function(){
+          setState("揀「儲存圖像」即入相片", false);
+        }).catch(function(e){
+          if (e && e.name==="AbortError") return;
+          download(b); setState("已下載", false);
+        });
+        return;
+      }
+      download(b);
+      setState("已下載", false);
     });
   });
   document.getElementById("btnShare").addEventListener("click", function(){
     toBlob().then(function(b){
       if(!b){ setState("分享失敗", true); return; }
       var f=new File([b], fileName(), {type:"image/png"});
-      if (navigator.canShare && navigator.canShare({files:[f]})){
+      if (canShareFile(f)){
         navigator.share({files:[f], title:"香港每朝簡報", text:"今日天氣同過海路況"}).catch(function(){});
       } else {
-        var url=URL.createObjectURL(b);
-        var a=document.createElement("a");
-        a.href=url; a.download=fileName(); document.body.appendChild(a); a.click();
-        setTimeout(function(){ URL.revokeObjectURL(url); a.remove(); }, 4000);
+        download(b);
         setState("已下載（此瀏覽器不支援直接分享）", false);
       }
     });
@@ -524,6 +576,24 @@
       refresh();
     }
   });
+
+  /* 起點選擇器 */
+  (function initVantage(){
+    var sel = document.getElementById("selVantage");
+    if (!sel) return;
+    VANTAGES.forEach(function(v){
+      var o = document.createElement("option");
+      o.value = v[0]; o.textContent = v[1];
+      if (v[0] === VANTAGE) o.selected = true;
+      sel.appendChild(o);
+    });
+    sel.addEventListener("change", function(){
+      VANTAGE = sel.value;
+      try{ localStorage.setItem(VKEY, VANTAGE); }catch(e){}
+      if (timer) clearTimeout(timer);
+      refresh();
+    });
+  })();
 
   refresh();
 })();
