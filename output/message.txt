@@ -2,5 +2,5 @@
 🌡 現在 32°C・濕度 64%
 🔆 紫外線 6（高）
 📈 明日 27–32°C・降雨低
-🚗 過海（灣仔起）：紅隧7分(繁忙)・東隧11分(繁忙)・西隧14分(繁忙)
+🚗 過海（灣仔起）：紅隧6分(繁忙)・東隧11分(繁忙)・西隧15分(繁忙)
 📊 https://raw.githubusercontent.com/Beelam32/Weather-daily-card/main/output/daily_card_20260924.png
