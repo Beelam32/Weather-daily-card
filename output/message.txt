@@ -1,6 +1,6 @@
-☀️ 每朝簡報 9月24日 星期四
-🌡 現在 32°C・濕度 64%
-🔆 紫外線 6（高）
-📈 明日 27–32°C・降雨低
-🚗 過海（灣仔起）：紅隧6分(繁忙)・東隧11分(繁忙)・西隧15分(繁忙)
-📊 https://raw.githubusercontent.com/Beelam32/Weather-daily-card/main/output/daily_card_20260924.png
+☀️ 每朝簡報 9月25日 星期五
+🌡 現在 32°C・濕度 51%
+🔆 紫外線 9（甚高）
+📈 明日 28–33°C・降雨低
+🚗 過海（灣仔起）：紅隧6分(繁忙)・東隧10分(暢通)・西隧10分(暢通)
+📊 https://raw.githubusercontent.com/Beelam32/Weather-daily-card/main/output/daily_card_20260925.png
