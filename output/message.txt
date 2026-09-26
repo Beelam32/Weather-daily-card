@@ -1,6 +1,6 @@
-☀️ 每朝簡報 9月25日 星期五
-🌡 現在 32°C・濕度 51%
+☀️ 每朝簡報 9月26日 星期六
+🌡 現在 31°C・濕度 61%
 🔆 紫外線 9（甚高）
 📈 明日 28–33°C・降雨低
-🚗 過海（灣仔起）：紅隧6分(繁忙)・東隧10分(暢通)・西隧10分(暢通)
-📊 https://raw.githubusercontent.com/Beelam32/Weather-daily-card/main/output/daily_card_20260925.png
+🚗 過海（灣仔起）：紅隧5分(暢通)・東隧9分(暢通)・西隧9分(暢通)
+📊 https://raw.githubusercontent.com/Beelam32/Weather-daily-card/main/output/daily_card_20260926.png
